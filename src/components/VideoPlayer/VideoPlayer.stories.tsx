@@ -7,11 +7,12 @@ export default {
   component: VideoPlayer,
 } as ComponentMeta<typeof VideoPlayer>;
 
-const Template: ComponentStory<typeof VideoPlayer> = (args) => <VideoPlayer />;
+const Template: ComponentStory<typeof VideoPlayer> = (args) => (
+  <VideoPlayer {...args} />
+);
 
 export const HelloWorld = Template.bind({});
 
-HelloWorld.args = {};
-
-export const ClickMe = Template.bind({});
-ClickMe.args = {};
+HelloWorld.args = {
+  src: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+};

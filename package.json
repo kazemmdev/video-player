@@ -1,6 +1,6 @@
 {
   "name": "@k90mirzaei/video-player",
-  "version": "1.0.1",
+  "version": "1.0.11",
   "description": "A React Video PLayer",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/k90mirzaei"
@@ -34,6 +34,7 @@
     "@testing-library/react": "^14.0.0",
     "@types/jest": "^29.5.0",
     "@types/react": "^18.0.29",
+    "@types/styled-components": "^5.1.26",
     "babel-jest": "^29.5.0",
     "babel-loader": "^8.3.0",
     "css-loader": "^6.7.3",
@@ -47,6 +48,7 @@
     "sass": "^1.60.0",
     "sass-loader": "^13.2.1",
     "style-loader": "^3.3.2",
+    "styled-components": "^5.3.9",
     "tslib": "^2.5.0",
     "typescript": "^5.0.2"
   },
