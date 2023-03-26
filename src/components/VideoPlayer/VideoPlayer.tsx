@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Container, ControlWrapper, Controller } from "./VideoPlayer.styles";
-import { PlayButton } from "./buttons";
+import { PlayButton, TheaterButton } from "./buttons";
 
 export interface IVideoPlayer {
   src: string;
@@ -10,25 +10,28 @@ export interface IVideoPlayer {
 const VideoPlayer = ({ src, hasTheater }: IVideoPlayer) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-
-  useEffect(() => {
-    if (videoRef.current) togglePlay();
-  }, [isPlaying]);
+  const [isTheater, setIsTheater] = useState(false);
 
   const togglePlay = () => {
+    setIsPlaying((state) => !state);
     videoRef.current?.paused
       ? videoRef.current?.play()
       : videoRef.current?.pause();
   };
 
+  const toggleTheater = () => {
+    setIsTheater((state) => !state);
+  };
+
   return (
-    <Container data-state={isPlaying ? "play" : "pause"}>
+    <Container
+      data-state={isPlaying ? "play" : "pause"}
+      data-screen={isTheater && "theater"}
+    >
       <ControlWrapper>
         <Controller>
-          <PlayButton
-            isPlaying={isPlaying}
-            onClick={() => setIsPlaying(!isPlaying)}
-          />
+          <PlayButton isPlaying={isPlaying} onClick={togglePlay} />
+          <TheaterButton isTheater={isTheater} onClick={toggleTheater} />
         </Controller>
       </ControlWrapper>
       <video ref={videoRef} src={src} />

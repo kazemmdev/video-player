@@ -12,6 +12,16 @@ export const Container = styled.div`
   video {
     width: 100%;
   }
+
+  &[data-screen="theater"],
+  &[data-screen="full"] {
+    max-width: initial;
+    width: 100%;
+  }
+
+  &[data-screen="theater"] {
+    max-height: 90vh;
+  }
 `;
 
 export const ControlWrapper = styled.div`
