@@ -11,12 +11,15 @@ interface props
 const PlayButton = ({ isPlaying, ...props }: props) => {
   return (
     <button {...props}>
-      <svg viewBox="0 0 24 24">
-        {isPlaying ? (
-          <path fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z" />
-        ) : (
-          <path fill="currentColor" d="M14,19H18V5H14M6,19H10V5H6V19Z" />
-        )}
+      <svg viewBox="4 4 28 28">
+        <path
+          fill="currentColor"
+          d={
+            isPlaying
+              ? "M 12,26 18.5,22 18.5,14 12,10 z M 18.5,22 25,18 25,18 18.5,14 z"
+              : "M 12,26 16,26 16,10 12,10 z M 21,26 25,26 25,10 21,10 z"
+          }
+        />
       </svg>
     </button>
   );

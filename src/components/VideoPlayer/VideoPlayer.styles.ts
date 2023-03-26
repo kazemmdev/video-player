@@ -68,10 +68,33 @@ export const Controller = styled.div`
     font-size: 1.1rem;
     cursor: pointer;
     opacity: 0.85;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: opacity 150ms ease-in-out;
 
     &:hover {
       opacity: 1;
+    }
+
+    & svg path {
+      transition: 0.2s ease;
+    }
+  }
+
+  .full-screen:hover {
+    animation: blink 0.3s ease-in-out;
+  }
+
+  @keyframes blink {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(0.9);
+    }
+    100% {
+      transform: scale(1);
     }
   }
 `;
