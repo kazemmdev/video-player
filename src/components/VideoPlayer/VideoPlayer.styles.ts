@@ -1,5 +1,7 @@
 import styled from "styled-components";
 
+const VOLUME_WIDTH = 60;
+
 export const Container = styled.div`
   position: relative;
   width: 90%;
@@ -97,4 +99,66 @@ export const Controller = styled.div`
       transform: scale(1);
     }
   }
+`;
+
+export const VolumeContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+export const VolumeSeek = styled.div`
+  width: 0;
+  height: 3px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding-inline: 3px;
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: width 150ms ease-in-out, transform 150ms ease-in-out;
+  transition-delay: 300ms;
+
+  ${VolumeContainer}:hover &,
+  &:focus-within {
+    width: ${VOLUME_WIDTH}px;
+    transform: scaleX(1);
+  }
+`;
+
+export const VolumeSeekInput = styled.input`
+  height: 3px;
+  width: ${VOLUME_WIDTH}px;
+  background: rgba(255, 255, 255, 0.3) !important;
+  -webkit-appearance: none;
+
+  &::-webkit-slider-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 100%;
+    border: none;
+    -webkit-appearance: none;
+    margin: 0;
+    background-color: white;
+    z-index: 99;
+    position: relative;
+    transition: 0.5s all ease;
+  }
+  ${VolumeContainer}:hover &,
+  &:focus-within {
+    transform: scaleX(1);
+  }
+`;
+
+export const VolumeSlider = styled.span<{ width: number }>`
+  height: 3px;
+  position: absolute;
+  background: white;
+  width: ${({ width }) => Math.round(58 * width)}px;
+`;
+
+export const DurationContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-grow: 1;
 `;
