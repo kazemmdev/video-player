@@ -161,4 +161,6 @@ export const DurationContainer = styled.div`
   align-items: center;
   gap: 0.25rem;
   flex-grow: 1;
+  color: #ddd;
+  font-family: Roboto, Arial, Helvetica, sans-serif;
 `;

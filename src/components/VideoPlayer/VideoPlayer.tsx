@@ -17,6 +17,24 @@ import {
 } from "./buttons";
 import VolumeButton from "./buttons/VolumeButton";
 
+const formatDuration = (time: number) => {
+  const seconds = Math.floor(time % 60);
+  const minutes = Math.floor(time / 60) % 60;
+  const hours = Math.floor(time / 3600);
+
+  const leadingZeroFormatter = new Intl.NumberFormat(undefined, {
+    minimumIntegerDigits: 2,
+  });
+
+  if (hours === 0) {
+    return `${minutes}:${leadingZeroFormatter.format(seconds)}`;
+  } else {
+    return `${hours}:${leadingZeroFormatter.format(
+      minutes
+    )}:${leadingZeroFormatter.format(seconds)}`;
+  }
+};
+
 export interface IVideoPlayer {
   src: string;
   hasTheater?: boolean;
@@ -38,12 +56,24 @@ const VideoPlayer = ({
   const [isTheater, setIsTheater] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isMiniPlayer, setIsMiniPlayer] = useState(false);
+  const [duration, setDuration] = useState("0:00");
+  const [progress, setProgress] = useState("0:00");
 
-  // useEffect(() => {
-  //   events();
-  //   return events();
-  // }, []);
+  useEffect(() => {
+    const video = videoRef?.current!;
 
+    video.addEventListener("leavepictureinpicture", exitMiniPlayer);
+    video.addEventListener("loadeddata", setVideoDuration);
+    video.addEventListener("timeupdate", setVideoProgress);
+
+    return () => {
+      video.removeEventListener("leavepictureinpicture", exitMiniPlayer);
+      video.removeEventListener("loadeddata", setVideoDuration);
+      video.removeEventListener("timeupdate", setVideoProgress);
+    };
+  }, []);
+
+  // play / pause
   const togglePlay = () => {
     setIsPlaying((state) => !state);
     videoRef.current?.paused
@@ -51,14 +81,14 @@ const VideoPlayer = ({
       : videoRef.current?.pause();
   };
 
-  const toggleMiniPlayer = () => {
-    if (isMiniPlayer) {
-      setIsMiniPlayer(false);
-      document.exitPictureInPicture();
-    } else {
-      setIsMiniPlayer(true);
-      videoRef.current?.requestPictureInPicture();
-    }
+  // screen
+  const launchMiniPlayer = () => {
+    setIsMiniPlayer(true);
+    videoRef.current?.requestPictureInPicture();
+  };
+
+  const exitMiniPlayer = () => {
+    setIsMiniPlayer(false);
   };
 
   const toggleTheater = () => {
@@ -75,13 +105,7 @@ const VideoPlayer = ({
     }
   };
 
-  const stateMode = () => {
-    return isPlaying ? "play" : "pause";
-  };
-
-  const viewMode = () => {
-    return (isTheater ? "theater" : "") || (isFullScreen ? "full-screen" : "");
-  };
+  // Volumes
 
   const toggleMute = () => {
     if (videoRef.current) {
@@ -106,6 +130,22 @@ const VideoPlayer = ({
     }
   };
 
+  // Duratiuon
+  const setVideoDuration = () => {
+    setDuration(formatDuration(videoRef?.current?.duration!));
+  };
+  const setVideoProgress = () => {
+    setProgress(formatDuration(videoRef?.current?.currentTime!));
+  };
+
+  // Handel modes attr
+  const stateMode = () => {
+    return isPlaying ? "play" : "pause";
+  };
+  const viewMode = () => {
+    return (isTheater ? "theater" : "") || (isFullScreen ? "full-screen" : "");
+  };
+
   return (
     <Container
       ref={videoContainerRef}
@@ -113,11 +153,9 @@ const VideoPlayer = ({
       data-screen={viewMode()}
     >
       <ControlWrapper>
-        <Controller>
-          {!isMiniPlayer && (
+        {!isMiniPlayer && (
+          <Controller>
             <PlayButton isPlaying={isPlaying} onClick={togglePlay} />
-          )}
-          {!isMiniPlayer && (
             <VolumeContainer>
               <VolumeButton volumeState={volumeLevel} onClick={toggleMute} />
               <VolumeSeek>
@@ -132,21 +170,23 @@ const VideoPlayer = ({
                 <VolumeSlider width={volumeLevel == "mute" ? 0 : volume} />
               </VolumeSeek>
             </VolumeContainer>
-          )}
-          {!isMiniPlayer && <DurationContainer>0:00</DurationContainer>}
-          {hasMiniPlayer && !isFullScreen && !isMiniPlayer && (
-            <MiniPlayerButton onClick={toggleMiniPlayer} />
-          )}
-          {hasTheater && !isFullScreen && !isMiniPlayer && (
-            <TheaterButton isTheater={isTheater} onClick={toggleTheater} />
-          )}
-          {hasFullScreen && !isMiniPlayer && (
-            <FullScreenButton
-              isFullScreen={isFullScreen}
-              onClick={toggleFullScreen}
-            />
-          )}
-        </Controller>
+            <DurationContainer>
+              {progress} / {duration}
+            </DurationContainer>
+            {hasMiniPlayer && !isFullScreen && (
+              <MiniPlayerButton onClick={launchMiniPlayer} />
+            )}
+            {hasTheater && !isFullScreen && (
+              <TheaterButton isTheater={isTheater} onClick={toggleTheater} />
+            )}
+            {hasFullScreen && (
+              <FullScreenButton
+                isFullScreen={isFullScreen}
+                onClick={toggleFullScreen}
+              />
+            )}
+          </Controller>
+        )}
       </ControlWrapper>
       <video ref={videoRef} src={src} />
     </Container>
