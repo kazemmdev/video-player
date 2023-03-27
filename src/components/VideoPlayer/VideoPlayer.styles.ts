@@ -164,3 +164,41 @@ export const DurationContainer = styled.div`
   color: #ddd;
   font-family: Roboto, Arial, Helvetica, sans-serif;
 `;
+
+export const TimeLineContainer = styled.div`
+  height: 8px;
+  margin-inline: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+`;
+
+export const TimeLine = styled.div`
+  background-color: rgba(100, 100, 100, 0.5);
+  height: 3px;
+  width: 100%;
+  position: relative;
+  transition: all 0.3s ease;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: calc(100% - var(--preview-position) * 100%);
+    background-color: rgb(150, 150, 150);
+    display: none;
+    transition: all 0.3s ease;
+  }
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: calc(100% - var(--progress-position) * 100%);
+    background-color: red;
+    transition: all 0.3s ease;
+  }
+`;

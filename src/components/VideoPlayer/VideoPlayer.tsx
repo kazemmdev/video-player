@@ -4,6 +4,8 @@ import {
   ControlWrapper,
   Controller,
   DurationContainer,
+  TimeLine,
+  TimeLineContainer,
   VolumeContainer,
   VolumeSeek,
   VolumeSeekInput,
@@ -50,6 +52,7 @@ const VideoPlayer = ({
 }: IVideoPlayer) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
+  const timelineRef = useRef<HTMLDivElement>(null);
   const [volume, setVolume] = useState(0.55);
   const [volumeLevel, setVolumeLevel] = useState("high");
   const [isPlaying, setIsPlaying] = useState(false);
@@ -135,7 +138,13 @@ const VideoPlayer = ({
     setDuration(formatDuration(videoRef?.current?.duration!));
   };
   const setVideoProgress = () => {
-    setProgress(formatDuration(videoRef?.current?.currentTime!));
+    const duration = videoRef?.current?.duration;
+    const curent = videoRef?.current?.currentTime;
+
+    setProgress(formatDuration(curent!));
+
+    const percent = curent! / duration!;
+    timelineRef.current!.style.setProperty("--progress-position", `${percent}`);
   };
 
   // Handel modes attr
@@ -154,38 +163,43 @@ const VideoPlayer = ({
     >
       <ControlWrapper>
         {!isMiniPlayer && (
-          <Controller>
-            <PlayButton isPlaying={isPlaying} onClick={togglePlay} />
-            <VolumeContainer>
-              <VolumeButton volumeState={volumeLevel} onClick={toggleMute} />
-              <VolumeSeek>
-                <VolumeSeekInput
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="any"
-                  value={volumeLevel == "mute" ? 0 : volume}
-                  onChange={onVolumeChange}
+          <>
+            <TimeLineContainer>
+              <TimeLine ref={timelineRef} />
+            </TimeLineContainer>
+            <Controller>
+              <PlayButton isPlaying={isPlaying} onClick={togglePlay} />
+              <VolumeContainer>
+                <VolumeButton volumeState={volumeLevel} onClick={toggleMute} />
+                <VolumeSeek>
+                  <VolumeSeekInput
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="any"
+                    value={volumeLevel == "mute" ? 0 : volume}
+                    onChange={onVolumeChange}
+                  />
+                  <VolumeSlider width={volumeLevel == "mute" ? 0 : volume} />
+                </VolumeSeek>
+              </VolumeContainer>
+              <DurationContainer>
+                {progress} / {duration}
+              </DurationContainer>
+              {hasMiniPlayer && !isFullScreen && (
+                <MiniPlayerButton onClick={launchMiniPlayer} />
+              )}
+              {hasTheater && !isFullScreen && (
+                <TheaterButton isTheater={isTheater} onClick={toggleTheater} />
+              )}
+              {hasFullScreen && (
+                <FullScreenButton
+                  isFullScreen={isFullScreen}
+                  onClick={toggleFullScreen}
                 />
-                <VolumeSlider width={volumeLevel == "mute" ? 0 : volume} />
-              </VolumeSeek>
-            </VolumeContainer>
-            <DurationContainer>
-              {progress} / {duration}
-            </DurationContainer>
-            {hasMiniPlayer && !isFullScreen && (
-              <MiniPlayerButton onClick={launchMiniPlayer} />
-            )}
-            {hasTheater && !isFullScreen && (
-              <TheaterButton isTheater={isTheater} onClick={toggleTheater} />
-            )}
-            {hasFullScreen && (
-              <FullScreenButton
-                isFullScreen={isFullScreen}
-                onClick={toggleFullScreen}
-              />
-            )}
-          </Controller>
+              )}
+            </Controller>
+          </>
         )}
       </ControlWrapper>
       <video ref={videoRef} src={src} />
