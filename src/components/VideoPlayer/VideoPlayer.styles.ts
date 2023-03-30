@@ -54,10 +54,14 @@ export const ControlWrapper = styled.div`
   }
 `;
 
+export const ControlInner = styled.div`
+  position: relative;
+  margin: 0.4rem;
+`;
+
 export const Controller = styled.div`
   display: flex;
   gap: 0.5rem;
-  padding: 0.25rem;
   align-items: center;
 
   & button {
@@ -167,7 +171,6 @@ export const DurationContainer = styled.div`
 
 export const TimeLineContainer = styled.div`
   height: 8px;
-  margin-inline: 0.5rem;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -178,7 +181,12 @@ export const TimeLine = styled.div`
   height: 3px;
   width: 100%;
   position: relative;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+
+  ${TimeLineContainer}:hover &,
+  ${TimeLineContainer}[data-scrubbing='on'] & {
+    height: 6px;
+  }
 
   &::before {
     content: "";
@@ -189,7 +197,6 @@ export const TimeLine = styled.div`
     right: calc(100% - var(--preview-position) * 100%);
     background-color: rgb(150, 150, 150);
     display: none;
-    transition: all 0.3s ease;
   }
   &::after {
     content: "";
@@ -199,6 +206,18 @@ export const TimeLine = styled.div`
     bottom: 0;
     right: calc(100% - var(--progress-position) * 100%);
     background-color: red;
-    transition: all 0.3s ease;
   }
+`;
+
+export const TimeLineIndicator = styled.div`
+  --scale: 0;
+  position: absolute;
+  transform: translateX(-50%) scale(var(--scale));
+  height: 100%;
+  top: -40%;
+  left: calc(var(--progress-position) * 100%);
+  background-color: red;
+  border-radius: 50%;
+  transition: transform 150ms ease-in-out;
+  aspect-ratio: 1 / 1;
 `;

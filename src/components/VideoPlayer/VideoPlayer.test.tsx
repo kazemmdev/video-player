@@ -5,6 +5,6 @@ import VideoPlayer from "./VideoPlayer";
 
 describe("VideoPlayer", () => {
   test("renders the VideoPlayer component", () => {
-    render(<VideoPlayer />);
+    render(<VideoPlayer src="" />);
   });
 });
