@@ -170,14 +170,15 @@ export const DurationContainer = styled.div`
 `;
 
 export const TimeLineContainer = styled.div`
-  height: 8px;
+  height: 10px;
   cursor: pointer;
   display: flex;
   align-items: center;
+  position: relative;
 `;
 
 export const TimeLine = styled.div`
-  background-color: rgba(100, 100, 100, 0.5);
+  background-color: rgba(100, 100, 100, 0.4);
   height: 3px;
   width: 100%;
   position: relative;
@@ -214,10 +215,67 @@ export const TimeLineIndicator = styled.div`
   position: absolute;
   transform: translateX(-50%) scale(var(--scale));
   height: 100%;
-  top: -40%;
+  top: 0;
   left: calc(var(--progress-position) * 100%);
   background-color: red;
   border-radius: 50%;
   transition: transform 150ms ease-in-out;
   aspect-ratio: 1 / 1;
+`;
+
+export const TimeLineHover = styled.div`
+  height: 3px;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  z-index: 10;
+  transition: all 0.2s ease;
+
+  ${TimeLineContainer}:hover & {
+    height: 6px;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: calc(100% - var(--hover-position) * 100%);
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+`;
+
+export const TimeLineHoverIndicator = styled.div`
+  --scale: 0;
+  position: absolute;
+  height: 16px;
+  bottom: 18px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  aspect-ratio: 1 / 1;
+  left: calc(var(--hover-position) * 100%);
+  transform: translateX(-50%) scale(var(--scale));
+  transition: scale 150ms ease-in-out;
+  background-color: rgb(24, 24, 24);
+  color: white;
+  font-family: Roboto, Arial, Helvetica, sans-serif;
+  font-size: 0.75rem;
+  opacity: 0.7;
+
+  &::before {
+    content: "";
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    right: 0;
+    margin: auto;
+    height: 8px;
+    width: 8px;
+    rotate: 45deg;
+    border-radius: 2px;
+    background-color: rgb(24, 24, 24);
+  }
 `;

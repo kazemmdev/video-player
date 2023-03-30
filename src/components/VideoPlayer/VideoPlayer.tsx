@@ -7,6 +7,8 @@ import {
   DurationContainer,
   TimeLine,
   TimeLineContainer,
+  TimeLineHover,
+  TimeLineHoverIndicator,
   TimeLineIndicator,
   VolumeContainer,
   VolumeSeek,
@@ -54,6 +56,7 @@ const VideoPlayer = ({
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
   const timelineIndicatorRef = useRef<HTMLDivElement>(null);
+  const timelineHoverIndicatorRef = useRef<HTMLDivElement>(null);
 
   const [volume, setVolume] = useState(0.6);
   const [volumeLevel, setVolumeLevel] = useState("high");
@@ -231,8 +234,15 @@ const VideoPlayer = ({
         "--progress-position",
         `${percent}`
       );
+      timelineRef.current.style.setProperty("--hover-position", `${percent}`);
     }
   };
+
+  /**
+   * Handle timeline mouse move
+   *
+   * @param e
+   */
   const timelineMouseMoveHandler = (e: any) => {
     if (
       videoRef?.current &&
@@ -247,6 +257,7 @@ const VideoPlayer = ({
         "--progress-position",
         `${percent}`
       );
+      timelineRef.current.style.setProperty("--hover-position", `${percent}`);
     }
   };
 
@@ -254,16 +265,41 @@ const VideoPlayer = ({
    * Show bullet indicator of timelione
    */
   const showTimelineIndicator = () => {
-    if (timelineIndicatorRef?.current)
-      timelineIndicatorRef.current.style.setProperty("--scale", "0.3");
+    timelineIndicatorRef.current?.style.setProperty("--scale", "1");
   };
 
   /**
    * Hide bullet indicator of timelione
    */
   const hideTimelineIndicator = () => {
-    if (timelineIndicatorRef?.current && !isScrubbing)
-      timelineIndicatorRef.current.style.setProperty("--scale", "0");
+    if (!isScrubbing)
+      timelineIndicatorRef.current?.style.setProperty("--scale", "0");
+  };
+
+  /**
+   * Handle timeline mouse move
+   *
+   * @param e
+   */
+  const timelineHoverMouseMoveHandler = (e: any) => {
+    if (timelineHoverIndicatorRef.current) {
+      const rec = timelineRef.current?.getBoundingClientRect()!;
+      const percent =
+        Math.min(Math.max(0, e.clientX - rec.x), rec.width) / rec.width;
+      timelineRef.current?.style.setProperty("--hover-position", `${percent}`);
+      timelineHoverIndicatorRef.current.style.setProperty("--scale", "1");
+
+      const time = percent * videoRef.current?.duration!;
+      timelineHoverIndicatorRef.current.textContent = formatDuration(time);
+    }
+  };
+
+  /**
+   * Handle timeline mouse out
+   */
+  const timelineHoverMouseOutHandler = () => {
+    timelineRef.current?.style.setProperty("--hover-position", "0");
+    timelineHoverIndicatorRef.current?.style.setProperty("--scale", "0");
   };
 
   /**
@@ -313,9 +349,13 @@ const VideoPlayer = ({
               onMouseEnter={showTimelineIndicator}
               onMouseLeave={hideTimelineIndicator}
               onMouseDown={onTimelineMouseDownHandler}
+              onMouseMove={timelineHoverMouseMoveHandler}
+              onMouseOut={timelineHoverMouseOutHandler}
             >
               <TimeLine />
               <TimeLineIndicator ref={timelineIndicatorRef} />
+              <TimeLineHover />
+              <TimeLineHoverIndicator ref={timelineHoverIndicatorRef} />
             </TimeLineContainer>
             <Controller>
               <PlayButton isPlaying={isPlaying} onClick={togglePlay} />
