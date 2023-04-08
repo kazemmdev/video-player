@@ -1,27 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  Container,
-  ControlInner,
-  ControlWrapper,
-  Controller,
-  DurationContainer,
-  TimeLine,
-  TimeLineContainer,
-  TimeLineHover,
-  TimeLineHoverIndicator,
-  TimeLineIndicator,
-  VolumeContainer,
-  VolumeSeek,
-  VolumeSeekInput,
-  VolumeSlider,
-} from "./VideoPlayer.styles";
-import {
-  FullScreenButton,
-  MiniPlayerButton,
-  PlayButton,
-  TheaterButton,
-  VolumeButton,
-} from "./buttons";
+import "./VideoPlayer.scss";
 
 const formatDuration = (time: number) => {
   const seconds = Math.floor(time % 60);
@@ -57,10 +35,12 @@ const VideoPlayer = ({
   const timelineRef = useRef<HTMLDivElement>(null);
   const timelineIndicatorRef = useRef<HTMLDivElement>(null);
   const timelineHoverIndicatorRef = useRef<HTMLDivElement>(null);
+  const volumeRef = useRef<HTMLDivElement>(null);
 
   const [volume, setVolume] = useState(0.6);
   const [volumeLevel, setVolumeLevel] = useState("high");
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlayBtnClicked, setIsPlayBtnClicked] = useState(true);
   const [isTheater, setIsTheater] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isMiniPlayer, setIsMiniPlayer] = useState(false);
@@ -77,6 +57,11 @@ const VideoPlayer = ({
     document.addEventListener("keydown", keyEvents);
     document.addEventListener("mouseup", stopScrubbingIndicator);
     document.addEventListener("mousemove", timelineMouseMoveHandler);
+
+    volumeRef.current?.style.setProperty(
+      "--volume-percent",
+      `${Math.round(58 * volume)}px`
+    );
 
     return () => {
       video.removeEventListener("leavepictureinpicture", exitMiniPlayer);
@@ -121,7 +106,8 @@ const VideoPlayer = ({
   /**
    * Play & pause toggler
    */
-  const togglePlay = () => {
+  const togglePlay = (isBtnClicked?: boolean) => {
+    setIsPlayBtnClicked(isBtnClicked || false);
     setIsPlaying((state) => !state);
     videoRef.current?.paused
       ? videoRef.current?.play()
@@ -174,12 +160,17 @@ const VideoPlayer = ({
    * Mute toggler
    */
   const toggleMute = () => {
-    if (videoRef.current) {
+    if (videoRef.current && volumeRef.current) {
       videoRef.current.muted = !videoRef.current.muted;
       if (videoRef.current.muted) {
         setVolumeLevel("mute");
+        volumeRef.current.style.setProperty("--volume-percent", "0");
       } else {
         setVolumeLevel(volume > 0.55 ? "high" : "low");
+        volumeRef.current.style.setProperty(
+          "--volume-percent",
+          `${Math.round(58 * volume)}px`
+        );
       }
     }
   };
@@ -197,6 +188,10 @@ const VideoPlayer = ({
       if (level > 0.55) setVolumeLevel("high");
       if (level < 0.55 && level > 0.1) setVolumeLevel("low");
       setVolume(level);
+      volumeRef.current?.style.setProperty(
+        "--volume-percent",
+        `${Math.round(58 * level)}px`
+      );
     }
   };
 
@@ -335,15 +330,17 @@ const VideoPlayer = ({
   };
 
   return (
-    <Container
+    <div
+      className="videoplayer"
       ref={videoContainerRef}
       data-state={stateMode()}
       data-screen={viewMode()}
     >
-      <ControlWrapper>
+      <div className="videoplayer__controller">
         {!isMiniPlayer && (
-          <ControlInner>
-            <TimeLineContainer
+          <div className="videoplayer__controller-wrap">
+            <div
+              className="timeline"
               ref={timelineRef}
               data-scrubbing={scrubbingMode()}
               onMouseEnter={showTimelineIndicator}
@@ -352,17 +349,26 @@ const VideoPlayer = ({
               onMouseMove={timelineHoverMouseMoveHandler}
               onMouseOut={timelineHoverMouseOutHandler}
             >
-              <TimeLine />
-              <TimeLineIndicator ref={timelineIndicatorRef} />
-              <TimeLineHover />
-              <TimeLineHoverIndicator ref={timelineHoverIndicatorRef} />
-            </TimeLineContainer>
-            <Controller>
-              <PlayButton isPlaying={isPlaying} onClick={togglePlay} />
-              <VolumeContainer>
+              <div className="timeline-slider" />
+              <div
+                className="timeline-slider-indicator"
+                ref={timelineIndicatorRef}
+              />
+              <div className="timeline-hover-slider" />
+              <div
+                className="timeline-hover-slider-indicator"
+                ref={timelineHoverIndicatorRef}
+              />
+            </div>
+            <div className="videoplayer__controller-inner">
+              <PlayButton
+                isPlaying={isPlaying}
+                onClick={() => togglePlay(true)}
+              />
+              <div className="volume" ref={volumeRef}>
                 <VolumeButton volumeState={volumeLevel} onClick={toggleMute} />
-                <VolumeSeek>
-                  <VolumeSeekInput
+                <div className="volume-container">
+                  <input
                     type="range"
                     min="0"
                     max="1"
@@ -370,12 +376,12 @@ const VideoPlayer = ({
                     value={volumeLevel == "mute" ? 0 : volume}
                     onChange={onVolumeChange}
                   />
-                  <VolumeSlider width={volumeLevel == "mute" ? 0 : volume} />
-                </VolumeSeek>
-              </VolumeContainer>
-              <DurationContainer>
+                  <div className="volume-slider" />
+                </div>
+              </div>
+              <div className="duration">
                 {progress} / {duration}
-              </DurationContainer>
+              </div>
               {hasMiniPlayer && !isFullScreen && (
                 <MiniPlayerButton onClick={toggleMiniPlayer} />
               )}
@@ -388,19 +394,158 @@ const VideoPlayer = ({
                   onClick={toggleFullScreen}
                 />
               )}
-            </Controller>
-          </ControlInner>
+            </div>
+          </div>
         )}
-      </ControlWrapper>
+      </div>
       <video ref={videoRef} src={src} />
-    </Container>
+      <div className="videoplayer__screen" onClick={() => togglePlay()}>
+        {!isPlayBtnClicked && isPlaying && (
+          <PlayButton isPlaying={!isPlaying} />
+        )}
+        {!isPlayBtnClicked && !isPlaying && (
+          <PlayButton isPlaying={!isPlaying} />
+        )}
+      </div>
+    </div>
   );
 };
 
+/**
+ * Default props
+ */
 VideoPlayer.defaultProps = {
   hasTheater: true,
   hasFullScreen: true,
   hasMiniPlayer: true,
+};
+
+/**
+ * Buttons components
+ */
+
+interface PlayButtonProps
+  extends React.DetailedHTMLProps<
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
+    HTMLButtonElement
+  > {
+  isPlaying: boolean;
+}
+
+const PlayButton = ({ isPlaying, ...props }: PlayButtonProps) => {
+  return (
+    <button {...props}>
+      <svg viewBox="4 4 28 28">
+        <path
+          fill="currentColor"
+          d={
+            isPlaying
+              ? "M 12,26 16,26 16,10 12,10 z M 21,26 25,26 25,10 21,10 z"
+              : "M 12,26 18.5,22 18.5,14 12,10 z M 18.5,22 25,18 25,18 18.5,14 z"
+          }
+        />
+      </svg>
+    </button>
+  );
+};
+
+interface FullScreenButtonProps
+  extends React.DetailedHTMLProps<
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
+    HTMLButtonElement
+  > {
+  isFullScreen: boolean;
+}
+
+const FullScreenButton = ({
+  isFullScreen,
+  ...props
+}: FullScreenButtonProps) => {
+  return (
+    <button {...props} className="full-screen">
+      <svg viewBox="0 0 24 24">
+        <path
+          fill="currentColor"
+          d={
+            isFullScreen
+              ? "M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"
+              : "M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"
+          }
+        />
+      </svg>
+    </button>
+  );
+};
+
+interface MiniPlayerButtonProps
+  extends React.DetailedHTMLProps<
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
+    HTMLButtonElement
+  > {}
+
+const MiniPlayerButton = ({ ...props }: MiniPlayerButtonProps) => {
+  return (
+    <button {...props}>
+      <svg viewBox="-3 -3 30 30">
+        <path
+          fill="currentColor"
+          d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zm-10-7h9v6h-9z"
+        />
+      </svg>
+    </button>
+  );
+};
+
+interface TheaterButtonProps
+  extends React.DetailedHTMLProps<
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
+    HTMLButtonElement
+  > {
+  isTheater: boolean;
+}
+
+const TheaterButton = ({ isTheater, ...props }: TheaterButtonProps) => {
+  return (
+    <button {...props}>
+      <svg viewBox="0 0 24 24">
+        <path
+          fill="currentColor"
+          d={
+            isTheater
+              ? "M19 6H5c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 10H5V8h14v8z"
+              : "M19 7H5c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zm0 8H5V9h14v6z"
+          }
+        />
+      </svg>
+    </button>
+  );
+};
+
+interface VolumeButtonProps
+  extends React.DetailedHTMLProps<
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
+    HTMLButtonElement
+  > {
+  volumeState: string;
+}
+
+const VolumeButton = ({ volumeState, ...props }: VolumeButtonProps) => {
+  return (
+    <button {...props}>
+      <svg viewBox="4 4 28 28">
+        <path
+          fill="currentColor"
+          d={
+            (volumeState === "high" &&
+              "M8,21 L12,21 L17,26 L17,10 L12,15 L8,15 L8,21 Z M19,14 L19,22 C20.48,21.32 21.5,19.77 21.5,18 C21.5,16.26 20.48,14.74 19,14 ZM19,11.29 C21.89,12.15 24,14.83 24,18 C24,21.17 21.89,23.85 19,24.71 L19,26.77 C23.01,25.86 26,22.28 26,18 C26,13.72 23.01,10.14 19,9.23 L19,11.29 Z") ||
+            (volumeState === "low" &&
+              "M8,21 L12,21 L17,26 L17,10 L12,15 L8,15 L8,21 Z M19,14 L19,22 C20.48,21.32 21.5,19.77 21.5,18 C21.5,16.26 20.48,14.74 19,14 Z") ||
+            "m 21.48,17.98 c 0,-1.77 -1.02,-3.29 -2.5,-4.03 v 2.21 l 2.45,2.45 c .03,-0.2 .05,-0.41 .05,-0.63 z m 2.5,0 c 0,.94 -0.2,1.82 -0.54,2.64 l 1.51,1.51 c .66,-1.24 1.03,-2.65 1.03,-4.15 0,-4.28 -2.99,-7.86 -7,-8.76 v 2.05 c 2.89,.86 5,3.54 5,6.71 z M 9.25,8.98 l -1.27,1.26 4.72,4.73 H 7.98 v 6 H 11.98 l 5,5 v -6.73 l 4.25,4.25 c -0.67,.52 -1.42,.93 -2.25,1.18 v 2.06 c 1.38,-0.31 2.63,-0.95 3.69,-1.81 l 2.04,2.05 1.27,-1.27 -9,-9 -7.72,-7.72 z m 7.72,.99 -2.09,2.08 2.09,2.09 V 9.98 z"
+          }
+        />
+      </svg>
+    </button>
+  );
 };
 
 export default VideoPlayer;
