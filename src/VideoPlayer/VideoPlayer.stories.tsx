@@ -14,5 +14,5 @@ const Template: ComponentStory<typeof VideoPlayer> = (args) => (
 export const HelloWorld = Template.bind({});
 
 HelloWorld.args = {
-  src: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+  src: "http://localhost/media/9/vcompress_2_0_500.m3u8",
 };

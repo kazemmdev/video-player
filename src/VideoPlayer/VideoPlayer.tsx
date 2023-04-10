@@ -51,9 +51,12 @@ const VideoPlayer = ({
   useEffect(() => {
     const video = videoRef?.current!;
 
-    video.addEventListener("leavepictureinpicture", exitMiniPlayer);
-    video.addEventListener("loadeddata", setVideoDuration);
-    video.addEventListener("timeupdate", setVideoProgress);
+    if (video) {
+      video.addEventListener("leavepictureinpicture", exitMiniPlayer);
+      video.addEventListener("loadeddata", setVideoDuration);
+      video.addEventListener("timeupdate", setVideoProgress);
+    }
+
     document.addEventListener("keydown", keyEvents);
     document.addEventListener("mouseup", stopScrubbingIndicator);
     document.addEventListener("mousemove", timelineMouseMoveHandler);
@@ -64,9 +67,12 @@ const VideoPlayer = ({
     );
 
     return () => {
-      video.removeEventListener("leavepictureinpicture", exitMiniPlayer);
-      video.removeEventListener("loadeddata", setVideoDuration);
-      video.removeEventListener("timeupdate", setVideoProgress);
+      if (video) {
+        video.removeEventListener("leavepictureinpicture", exitMiniPlayer);
+        video.removeEventListener("loadeddata", setVideoDuration);
+        video.removeEventListener("timeupdate", setVideoProgress);
+      }
+
       document.removeEventListener("keydown", keyEvents);
       document.removeEventListener("mouseup", stopScrubbingIndicator);
       document.removeEventListener("mousemove", timelineMouseMoveHandler);
