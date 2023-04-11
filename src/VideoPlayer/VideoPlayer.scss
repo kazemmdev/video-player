@@ -1,4 +1,5 @@
-.videoplayer, .video-js  {
+.videoplayer,
+.video-js {
   position: relative;
   width: 90%;
   max-width: 1000px;
@@ -6,9 +7,11 @@
   justify-content: center;
   margin-inline: auto;
   background-color: black;
+  overflow: hidden !important;
 
   video {
     width: 100%;
+    overflow: hidden !important;
   }
 
   &[data-screen="theater"],

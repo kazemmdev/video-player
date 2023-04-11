@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import videojs from "video.js";
+import { getMimetype } from "./mimetype";
+
+const options = {
+  fill: true,
+  fluid: true,
+  preload: "meta",
+  contentData: {},
+};
 
 const usePlayer = ({ src }: { src: string }) => {
-  const options = {
-    fill: true,
-    fluid: true,
-    preload: "meta",
-    contentData: {},
-  };
   const videoRef = useRef<HTMLVideoElement>(null);
   const [player, setPlayer] = useState(null);
 
@@ -17,8 +19,8 @@ const usePlayer = ({ src }: { src: string }) => {
       sources: [
         {
           src,
-          type: "application/x-mpegURL",
-          // withCredentials: false,
+          type: getMimetype(src),
+          withCredentials: false,
         },
       ],
     });
