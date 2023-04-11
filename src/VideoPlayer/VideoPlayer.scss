@@ -1,4 +1,4 @@
-.videoplayer {
+.videoplayer, .video-js  {
   position: relative;
   width: 90%;
   max-width: 1000px;
@@ -24,7 +24,7 @@
   &:hover .videoplayer__controller,
   &:focus-within .videoplayer__controller,
   &[data-state="pause"] .videoplayer__controller {
-    opacity: 1;
+    opacity: 1 !important;
   }
 
   &__controller {

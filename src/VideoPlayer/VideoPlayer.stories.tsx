@@ -14,5 +14,5 @@ const Template: ComponentStory<typeof VideoPlayer> = (args) => (
 export const HelloWorld = Template.bind({});
 
 HelloWorld.args = {
-  src: "http://localhost/media/9/vcompress_2_0_500.m3u8",
+  src: "https://kazemm.dev/api/media/sample.m3u8",
 };
