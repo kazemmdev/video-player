@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import Hls from "hls.js";
 import {
   FullScreenButton,
   MiniPlayerButton,
@@ -6,9 +7,8 @@ import {
   TheaterButton,
   VolumeButton,
 } from "./Components";
+import usePlayer from "./Utilities/HlsPlayer";
 import "./VideoPlayer.scss";
-import "video.js/dist/video-js.css";
-import usePlayer from "./Utilities/usePlayer";
 
 const formatDuration = (time: number) => {
   const seconds = Math.floor(time % 60);
@@ -31,6 +31,8 @@ export interface IVideoPlayer {
   hasTheater?: boolean;
   hasFullScreen?: boolean;
   hasMiniPlayer?: boolean;
+  options?: any;
+  hlsConfig?: any;
 }
 
 const VideoPlayer = ({
@@ -38,8 +40,13 @@ const VideoPlayer = ({
   hasTheater,
   hasFullScreen,
   hasMiniPlayer,
+  options,
+  hlsConfig,
 }: IVideoPlayer) => {
-  const videoRef = usePlayer({ src });
+  console.log("inside video player ", hlsConfig);
+
+  const hls = new Hls(hlsConfig);
+  const videoRef = usePlayer({ src, options });
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
   const timelineIndicatorRef = useRef<HTMLDivElement>(null);
@@ -59,8 +66,24 @@ const VideoPlayer = ({
 
   useEffect(() => {
     const video = videoRef?.current!;
-
     if (video) {
+      if (Hls.isSupported()) {
+        hls.loadSource(src);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, function () {
+          video.play();
+        });
+      }
+      // hls.js is not supported on platforms that do not have Media Source Extensions (MSE) enabled.
+      // When the browser has built-in HLS support (check using `canPlayType`), we can provide an HLS manifest (i.e. .m3u8 URL) directly to the video element throught the `src` property.
+      // This is using the built-in support of the plain video element, without using hls.js.
+      else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+        video.src = src;
+        video.addEventListener("canplay", function () {
+          video.play();
+        });
+      }
+
       video.addEventListener("leavepictureinpicture", exitMiniPlayer);
       video.addEventListener("loadeddata", setVideoDuration);
       video.addEventListener("timeupdate", setVideoProgress);
@@ -100,6 +123,7 @@ const VideoPlayer = ({
     switch (e.key.toLowerCase()) {
       case " ":
         if (tagName === "button") return;
+        break;
       case "k":
         togglePlay();
         break;
@@ -350,9 +374,8 @@ const VideoPlayer = ({
       ref={videoContainerRef}
       data-state={stateMode()}
       data-screen={viewMode()}
-      data-vjs-player
     >
-      <video ref={videoRef} className="video-js" />
+      <video ref={videoRef} />
       <div className="videoplayer__controller">
         {!isMiniPlayer && (
           <div className="videoplayer__controller-wrap">
