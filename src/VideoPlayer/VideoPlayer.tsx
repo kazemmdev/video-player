@@ -43,8 +43,6 @@ const VideoPlayer = ({
   options,
   hlsConfig,
 }: IVideoPlayer) => {
-  console.log("inside video player ", hlsConfig);
-
   const hls = new Hls(hlsConfig);
   const videoRef = usePlayer({ src, options });
   const videoContainerRef = useRef<HTMLDivElement>(null);

@@ -212,9 +212,9 @@
         &-indicator {
           --scale: 0;
           position: absolute;
-          height: 16px;
+          height: 18px;
           bottom: 18px;
-          padding: 3px 6px;
+          padding: 0px 6px;
           border-radius: 4px;
           aspect-ratio: 1 / 1;
           left: calc(var(--hover-position) * 100%);
@@ -237,6 +237,7 @@
             width: 8px;
             rotate: 45deg;
             border-radius: 2px;
+            z-index: -1;
             background-color: rgb(24, 24, 24);
           }
         }
